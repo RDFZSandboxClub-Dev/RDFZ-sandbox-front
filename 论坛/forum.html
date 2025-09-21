@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RDFZ沙盒社 - 论坛</title>
+    <!-- 引入外部资源 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- 自定义Tailwind配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#16A34A',    // 主色调：绿色
+                        secondary: '#0891B2',  // 辅助色：蓝色
+                        accent: '#F59E0B',     // 强调色：橙色
+                        dark: '#1E293B',       // 深色
+                        light: '#F8FAFC',      // 浅色
+                        white: '#FFFFFF'       // 白色
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                        minecraft: ['Minecraft', 'sans-serif']
+                    },
+                    boxShadow: {
+                        'subtle': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                        'card': '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02)',
+                        'card-hover': '0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02)'
+                    }
+                },
+            }
+        }
+    </script>
+    
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .bg-pattern {
+                background-image: radial-gradient(rgba(22, 163, 74, 0.05) 1px, transparent 1px);
+                background-size: 30px 30px;
+            }
+            /* 移动端菜单样式 */
+            .mobile-menu-active {
+                display: flex !important;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background-color: white;
+                padding: 1rem;
+                margin-top: 0.25rem;
+                border-radius: 0 0 0.5rem 0.5rem;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+                z-index: 50;
+            }
+            
+            /* 移动端菜单中的按钮对齐样式 */
+            .mobile-menu-active a {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: flex-start !important;
+                padding: 0.75rem 1rem !important;
+                margin: 0.25rem 0 !important;
+                border-radius: 0.5rem !important;
+                transition: all 0.3s ease;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            
+            .mobile-menu-active a i {
+                margin-right: 0.75rem !important;
+                width: 20px !important;
+                text-align: center !important;
+                flex-shrink: 0 !important;
+            }
+            
+            /* 确保移动端菜单中的所有按钮样式一致 */
+            .mobile-menu-active .btn-hover {
+                transform: none !important;
+                box-shadow: none !important;
+            }
+            
+            .mobile-menu-active .btn-hover:hover {
+                transform: none !important;
+                box-shadow: none !important;
+                background-color: rgba(22, 163, 74, 0.1) !important;
+            }
+        }
+    </style>
+    
+    <style>
+        /* 添加现代字体和基础样式 */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: #FFFFFF;
+            scroll-behavior: smooth;
+        }
+        
+        /* 平滑过渡动画 */
+        .btn-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .btn-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+        }
+        
+        /* Logo悬停效果 */
+        .logo-container {
+            position: relative;
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+        
+        .logo-container:hover {
+            transform: scale(1.05);
+        }
+        
+        /* 导航栏滚动效果 */
+        .navbar {
+            transition: all 0.3s ease;
+        }
+        
+        .navbar.scrolled {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s ease forwards;
+        }
+        
+        .animate-delay-100 {
+            animation-delay: 0.1s;
+        }
+        
+        .animate-delay-200 {
+            animation-delay: 0.2s;
+        }
+        
+        .animate-delay-300 {
+            animation-delay: 0.3s;
+        }
+        
+        .animate-delay-400 {
+            animation-delay: 0.4s;
+        }
+        
+        /* 卡片悬停效果 */
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+        }
+        
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #16A34A;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #15803D;
+        }
+        
+        /* 用户信息悬停效果 */
+        .user-info {
+            transition: all 0.3s ease;
+        }
+        
+        .user-info:hover {
+            transform: scale(1.05);
+        }
+        
+        /* 积分样式 */
+        .points-badge {
+            background: linear-gradient(135deg, #F59E0B, #F97316);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        /* 点赞按钮样式 */
+        .like-button {
+            transition: all 0.2s ease;
+        }
+        
+        .like-button:hover {
+            transform: scale(1.1);
+        }
+        
+        .like-button.liked {
+            color: #F59E0B;
+        }
+        
+        /* 投积分按钮样式 */
+        .points-button {
+            transition: all 0.2s ease;
+        }
+        
+        .points-button:hover {
+            transform: scale(1.1);
+        }
+        
+        /* 下拉框样式 */
+        .custom-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1.5em 1.5em;
+            padding-right: 3rem;
+            min-width: 200px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-white">
+    <!-- 顶部导航栏 -->
+    <header class="navbar bg-white text-dark shadow-subtle fixed w-full z-50">
+        <div class="container mx-auto px-4 py-4">
+            <nav class="flex justify-between items-center">
+                <!-- 左侧Logo和名称 -->
+                <div class="flex items-center gap-3">
+                    <div class="logo-container">
+                        <img src="data:image/png;base64,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" alt="RDFZ沙盒社Logo" class="h-10 w-10">
+                    </div>
+                    <span class="text-xl font-semibold tracking-wide">SandBox 沙盒社</span>
+                </div>
+                
+                <!-- 中间导航按钮 -->
+                <div id="navLinks" class="hidden md:flex items-center space-x-6">
+                    <a href="../主页/index.html" class="btn-hover text-dark hover:text-primary font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out flex items-center">
+                        <i class="fa fa-home mr-2" aria-hidden="true"></i>首页
+                    </a>
+                    <a href="#forum" class="btn-hover bg-primary hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out flex items-center">
+                        <i class="fa fa-comments-o mr-2" aria-hidden="true"></i>论坛
+                    </a>
+                    <a href="#activities" class="btn-hover text-dark hover:text-primary font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out flex items-center">
+                        <i class="fa fa-calendar mr-2" aria-hidden="true"></i>活动
+                    </a>
+                    <a href="../注册与登录/登录.html" class="btn-hover bg-primary hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out flex items-center">
+                        <i class="fa fa-user-o mr-2" aria-hidden="true"></i>登录
+                    </a>
+                </div>
+                
+                <!-- 右侧用户信息 -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <!-- 用户头像 -->
+                    <div class="user-info cursor-pointer">
+                        <img src="https://picsum.photos/seed/user123/40/40.jpg" alt="用户头像" class="h-10 w-10 rounded-full border-2 border-gray-200">
+                    </div>
+                    
+                    <!-- 用户昵称 -->
+                    <div class="user-info">
+                        <span class="text-dark font-medium">沙盒玩家</span>
+                    </div>
+                    
+                    <!-- 积分 -->
+                    <div class="user-info">
+                        <div class="points-badge">
+                            <i class="fa fa-coins" aria-hidden="true"></i>
+                            <span>1280</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 移动端菜单按钮 -->
+                <div class="md:hidden">
+                    <button id="menuButton" class="text-dark focus:outline-none p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                        <i class="fa fa-bars text-xl" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- 主内容区域 -->
+    <main class="flex-grow pt-24 pb-20 px-4 bg-gradient-to-b from-white via-white to-gray-50 bg-pattern">
+        <div class="container mx-auto max-w-6xl">
+            <!-- 论坛标题和搜索区域 -->
+            <div class="mb-8 text-center animate-fade-in-up">
+                <h1 class="text-3xl md:text-4xl font-bold text-primary mb-6 tracking-wide text-shadow">
+                    RDFZ沙盒社论坛
+                </h1>
+                <p class="text-gray-600 max-w-2xl mx-auto">
+                    在这里分享你的想法，与其他玩家交流，共同创造更精彩的游戏体验。
+                </p>
+            </div>
+            
+            <!-- 搜索和话题选择区域 -->
+            <div class="bg-white rounded-xl shadow-card p-6 mb-8 animate-fade-in-up animate-delay-100">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <!-- 搜索框 -->
+                    <div class="flex-grow">
+                        <div class="relative">
+                            <input type="text" id="searchInput" placeholder="搜索帖子内容..." 
+                                class="w-full py-3 px-4 pr-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <button class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 话题选择下拉框 -->
+                    <div class="md:w-64">
+                        <select id="topicSelect" class="custom-select w-full py-3 px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white">
+                            <option value="all">全部话题</option>
+                            <option value="building">建筑分享</option>
+                            <option value="redstone">红石电路</option>
+                            <option value="adventure">冒险探索</option>
+                            <option value="survival">生存技巧</option>
+                            <option value="creative">创造模式</option>
+                            <option value="events">活动讨论</option>
+                            <option value="suggestions">建议反馈</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 发帖区域 -->
+            <div class="bg-white rounded-xl shadow-card p-6 mb-8 animate-fade-in-up animate-delay-200">
+                <h2 class="text-xl font-bold text-dark mb-4">发表新帖</h2>
+                <div class="mb-4">
+                    <input type="text" id="postTitle" placeholder="输入帖子标题..." 
+                        class="w-full py-3 px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                </div>
+                <div class="mb-4">
+                    <textarea id="postContent" rows="4" placeholder="分享你的想法..." 
+                        class="w-full py-3 px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"></textarea>
+                </div>
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-4">
+                        <select id="postTopic" class="custom-select py-2 px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white">
+                            <option value="building">建筑分享</option>
+                            <option value="redstone">红石电路</option>
+                            <option value="adventure">冒险探索</option>
+                            <option value="survival">生存技巧</option>
+                            <option value="creative">创造模式</option>
+                            <option value="events">活动讨论</option>
+                            <option value="suggestions">建议反馈</option>
+                        </select>
+                    </div>
+                    <button id="submitPost" class="btn-hover bg-primary hover:bg-green-600 text-white font-medium py-2 px-6 rounded-lg transition duration-300 ease-in-out flex items-center">
+                        <i class="fa fa-paper-plane mr-2" aria-hidden="true"></i>发布
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 帖子列表 -->
+            <div class="space-y-6">
+                <!-- 帖子1 -->
+                <div class="bg-white rounded-xl shadow-card overflow-hidden card-hover animate-fade-in-up animate-delay-100">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex items-center space-x-3">
+                                <img src="https://picsum.photos/seed/user456/40/40.jpg" alt="用户头像" class="h-10 w-10 rounded-full">
+                                <div>
+                                    <h3 class="font-bold text-dark">建筑大师</h3>
+                                    <p class="text-sm text-gray-500">发布于 2025年6月10日</p>
+                                </div>
+                            </div>
+                            <span class="bg-primary/10 text-primary text-xs font-medium px-2.5 py-0.5 rounded">建筑分享</span>
+                        </div>
+                        
+                        <h2 class="text-xl font-bold text-dark mb-3">分享我的最新城堡设计！</h2>
+                        <p class="text-gray-600 mb-4">
+                            大家好！我最近设计了一座中世纪风格的城堡，有主塔、城墙、护城河和秘密通道。整个设计耗时约两周，希望能得到大家的反馈和建议。如果有兴趣，我们可以一起在服务器上建造！
+                        </p>
+                        
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <img src="https://picsum.photos/seed/castle1/200/150.jpg" alt="城堡图片1" class="rounded-lg w-32 h-24 object-cover">
+                            <img src="https://picsum.photos/seed/castle2/200/150.jpg" alt="城堡图片2" class="rounded-lg w-32 h-24 object-cover">
+                            <img src="https://picsum.photos/seed/castle3/200/150.jpg" alt="城堡图片3" class="rounded-lg w-32 h-24 object-cover">
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center space-x-4 text-gray-500">
+                                <div class="flex items-center">
+                                    <i class="fa fa-eye mr-1"></i>
+                                    <span>245</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <button class="like-button flex items-center text-gray-500 hover:text-accent">
+                                        <i class="fa fa-thumbs-up mr-1"></i>
+                                        <span class="like-count">32</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <button class="points-button bg-accent hover:bg-orange-600 text-white font-medium py-1.5 px-4 rounded-lg text-sm transition duration-300 ease-in-out flex items-center">
+                                <i class="fa fa-coins mr-1" aria-hidden="true"></i>投积分
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 帖子2 -->
+                <div class="bg-white rounded-xl shadow-card overflow-hidden card-hover animate-fade-in-up animate-delay-200">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex items-center space-x-3">
+                                <img src="https://picsum.photos/seed/user789/40/40.jpg" alt="用户头像" class="h-10 w-10 rounded-full">
+                                <div>
+                                    <h3 class="font-bold text-dark">红石工程师</h3>
+                                    <p class="text-sm text-gray-500">发布于 2025年6月9日</p>
+                                </div>
+                            </div>
+                            <span class="bg-secondary/10 text-secondary text-xs font-medium px-2.5 py-0.5 rounded">红石电路</span>
+                        </div>
+                        
+                        <h2 class="text-xl font-bold text-dark mb-3">超小型全自动农场设计</h2>
+                        <p class="text-gray-600 mb-4">
+                            今天分享一个超小型的全自动农场设计，只需要5x5的空间，可以种植小麦、胡萝卜和土豆。使用简单的红石电路和观察者，完全不需要玩家干预。我已经测试过了，效率很高，适合新手建造。
+                        </p>
+                        
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <img src="https://picsum.photos/seed/farm1/200/150.jpg" alt="农场图片1" class="rounded-lg w-32 h-24 object-cover">
+                            <img src="https://picsum.photos/seed/farm2/200/150.jpg" alt="农场图片2" class="rounded-lg w-32 h-24 object-cover">
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center space-x-4 text-gray-500">
+                                <div class="flex items-center">
+                                    <i class="fa fa-eye mr-1"></i>
+                                    <span>189</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <button class="like-button flex items-center text-gray-500 hover:text-accent">
+                                        <i class="fa fa-thumbs-up mr-1"></i>
+                                        <span class="like-count">28</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <button class="points-button bg-accent hover:bg-orange-600 text-white font-medium py-1.5 px-4 rounded-lg text-sm transition duration-300 ease-in-out flex items-center">
+                                <i class="fa fa-coins mr-1" aria-hidden="true"></i>投积分
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 帖子3 -->
+                <div class="bg-white rounded-xl shadow-card overflow-hidden card-hover animate-fade-in-up animate-delay-300">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex items-center space-x-3">
+                                <img src="https://picsum.photos/seed/user101/40/40.jpg" alt="用户头像" class="h-10 w-10 rounded-full">
+                                <div>
+                                    <h3 class="font-bold text-dark">冒险家小王</h3>
+                                    <p class="text-sm text-gray-500">发布于 2025年6月8日</p>
+                                </div>
+                            </div>
+                            <span class="bg-accent/10 text-accent text-xs font-medium px-2.5 py-0.5 rounded">冒险探索</span>
+                        </div>
+                        
+                        <h2 class="text-xl font-bold text-dark mb-3">寻找队友一起探索下界要塞</h2>
+                        <p class="text-gray-600 mb-4">
+                            我发现了一个巨大的下界要塞，里面有很多宝藏和危险。我需要2-3名队友一起探索，最好有远程武器和抗火药水。我们可以平分所有战利品！有兴趣的请在下方留言或私信我。
+                        </p>
+                        
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center space-x-4 text-gray-500">
+                                <div class="flex items-center">
+                                    <i class="fa fa-eye mr-1"></i>
+                                    <span>156</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <button class="like-button flex items-center text-gray-500 hover:text-accent liked">
+                                        <i class="fa fa-thumbs-up mr-1"></i>
+                                        <span class="like-count">15</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <button class="points-button bg-accent hover:bg-orange-600 text-white font-medium py-1.5 px-4 rounded-lg text-sm transition duration-300 ease-in-out flex items-center">
+                                <i class="fa fa-coins mr-1" aria-hidden="true"></i>投积分
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 帖子4 -->
+                <div class="bg-white rounded-xl shadow-card overflow-hidden card-hover animate-fade-in-up animate-delay-100">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex items-center space-x-3">
+                                <img src="https://picsum.photos/seed/user202/40/40.jpg" alt="用户头像" class="h-10 w-10 rounded-full">
+                                <div>
+                                    <h3 class="font-bold text-dark">生存专家</h3>
+                                    <p class="text-sm text-gray-500">发布于 2025年6月7日</p>
+                                </div>
+                            </div>
+                            <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">生存技巧</span>
+                        </div>
+                        
+                        <h2 class="text-xl font-bold text-dark mb-3">新手必看：生存模式第一周生存指南</h2>
+                        <p class="text-gray-600 mb-4">
+                            作为一名资深生存玩家，我想分享一些新手在生存模式第一周的生存技巧。包括如何快速找到食物、建造简易庇护所、制作基本工具和武器，以及如何应对夜晚的怪物。这些技巧能帮助新手顺利度过最艰难的第一周。
+                        </p>
+                        
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center space-x-4 text-gray-500">
+                                <div class="flex items-center">
+                                    <i class="fa fa-eye mr-1"></i>
+                                    <span>312</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <button class="like-button flex items-center text-gray-500 hover:text-accent">
+                                        <i class="fa fa-thumbs-up mr-1"></i>
+                                        <span class="like-count">45</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <button class="points-button bg-accent hover:bg-orange-600 text-white font-medium py-1.5 px-4 rounded-lg text-sm transition duration-300 ease-in-out flex items-center">
+                                <i class="fa fa-coins mr-1" aria-hidden="true"></i>投积分
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 加载更多按钮 -->
+            <div class="mt-8 text-center animate-fade-in-up animate-delay-400">
+                <button id="loadMorePosts" class="btn-hover bg-white hover:bg-gray-50 text-primary font-medium py-3 px-8 rounded-lg text-lg transition duration-300 ease-in-out shadow-subtle border border-primary">
+                    加载更多帖子
+                </button>
+            </div>
+        </div>
+    </main>
+    
+    <!-- 底部区域 -->
+    <footer class="bg-gray-50 text-dark py-12 border-t border-gray-200">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+                <div class="mb-6 md:mb-0 flex items-center gap-3">
+                    <div class="logo-container">
+                        <img src="data:image/png;base64,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" alt="RDFZ沙盒社Logo" class="h-8 w-8">
+                    </div>
+                    <span class="text-lg font-semibold">SandBox 沙盒社</span>
+                </div>
+                
+                <div class="flex space-x-8">
+                    <a href="../关于/about.html" class="text-dark hover:text-primary transition duration-300 ease-in-out flex items-center">
+                        <i class="fa fa-user-circle-o mr-2" aria-hidden="true"></i>关于
+                    </a>
+                    <a href="https://afdian.com/a/rdfzsandbox_support" class="text-dark hover:text-primary transition duration-300 ease-in-out flex items-center">
+                        <i class="fa fa-support mr-2" aria-hidden="true"></i>支持
+                    </a>
+                </div>
+            </div>
+            
+            <!-- 社交媒体链接 -->
+            <div class="mt-6 flex justify-center space-x-8">
+                <a href="#" class="text-dark hover:text-primary transition duration-300 ease-in-out hover:scale-110">
+                    <i class="fa fa-weixin text-2xl" aria-hidden="true"></i>
+                </a>
+                <a href="#" class="text-dark hover:text-primary transition duration-300 ease-in-out hover:scale-110">
+                    <i class="fa fa-weibo text-2xl" aria-hidden="true"></i>
+                </a>
+                <a href="#" class="text-dark hover:text-primary transition duration-300 ease-in-out hover:scale-110">
+                    <i class="fa fa-github text-2xl" aria-hidden="true"></i>
+                </a>
+                <a href="#" class="text-dark hover:text-primary transition duration-300 ease-in-out hover:scale-110">
+                    <i class="fa fa-youtube-play text-2xl" aria-hidden="true"></i>
+                </a>
+            </div>
+            
+            <!-- 版权信息 -->
+            <div class="mt-8 text-center text-gray-500">
+                <p>&copy; 2025 人大附中沙盒社. 保留所有权利.</p>
+                <p class="mt-2 text-sm">使用先进技术构建，为热爱游戏的你打造</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- JavaScript交互 -->
+    <script>
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+        
+        // 平滑滚动效果
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 100, // 减去导航栏高度
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // 移动端菜单切换
+        const menuButton = document.getElementById('menuButton');
+        const navLinks = document.getElementById('navLinks');
+        
+        if (menuButton && navLinks) {
+            menuButton.addEventListener('click', function() {
+                // 使用一个类来控制菜单显示/隐藏，简化代码
+                navLinks.classList.toggle('mobile-menu-active');
+                
+                // 切换菜单图标
+                const icon = this.querySelector('i');
+                icon.classList.toggle('fa-bars');
+                icon.classList.toggle('fa-times');
+            });
+        }
+        
+        // 点击移动端菜单项后自动关闭菜单
+        document.querySelectorAll('#navLinks a').forEach(link => {
+            link.addEventListener('click', function() {
+                if (navLinks.classList.contains('mobile-menu-active')) {
+                    navLinks.classList.remove('mobile-menu-active');
+                    const icon = menuButton.querySelector('i');
+                    icon.classList.add('fa-bars');
+                    icon.classList.remove('fa-times');
+                }
+            });
+        });
+        
+        // 点赞功能
+        document.querySelectorAll('.like-button').forEach(button => {
+            button.addEventListener('click', function() {
+                this.classList.toggle('liked');
+                const likeCount = this.querySelector('.like-count');
+                let count = parseInt(likeCount.textContent);
+                
+                if (this.classList.contains('liked')) {
+                    count++;
+                } else {
+                    count--;
+                }
+                
+                likeCount.textContent = count;
+            });
+        });
+        
+        // 投积分功能
+        document.querySelectorAll('.points-button').forEach(button => {
+            button.addEventListener('click', function() {
+                // 模拟投积分成功
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fa fa-check mr-1" aria-hidden="true"></i>已投';
+                this.classList.add('bg-green-500');
+                this.classList.remove('bg-accent', 'hover:bg-orange-600');
+                
+                // 3秒后恢复原状
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.classList.remove('bg-green-500');
+                    this.classList.add('bg-accent', 'hover:bg-orange-600');
+                }, 3000);
+            });
+        });
+        
+        // 发布帖子功能
+        const submitPost = document.getElementById('submitPost');
+        const postTitle = document.getElementById('postTitle');
+        const postContent = document.getElementById('postContent');
+        const postTopic = document.getElementById('postTopic');
+        
+        if (submitPost) {
+            submitPost.addEventListener('click', function() {
+                const title = postTitle.value.trim();
+                const content = postContent.value.trim();
+                
+                if (title && content) {
+                    // 模拟发布成功
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<i class="fa fa-spinner fa-spin mr-2" aria-hidden="true"></i>发布中...';
+                    this.disabled = true;
+                    
+                    setTimeout(() => {
+                        // 重置表单
+                        postTitle.value = '';
+                        postContent.value = '';
+                        
+                        // 恢复按钮状态
+                        this.innerHTML = '<i class="fa fa-check mr-2" aria-hidden="true"></i>发布成功';
+                        this.classList.add('bg-green-500');
+                        this.classList.remove('bg-primary', 'hover:bg-green-600');
+                        
+                        // 3秒后恢复原状
+                        setTimeout(() => {
+                            this.innerHTML = originalText;
+                            this.classList.remove('bg-green-500');
+                            this.classList.add('bg-primary', 'hover:bg-green-600');
+                            this.disabled = false;
+                        }, 3000);
+                    }, 1500);
+                } else {
+                    // 简单的表单验证提示
+                    if (!title) postTitle.classList.add('border-red-500');
+                    if (!content) postContent.classList.add('border-red-500');
+                    
+                    setTimeout(() => {
+                        postTitle.classList.remove('border-red-500');
+                        postContent.classList.remove('border-red-500');
+                    }, 3000);
+                }
+            });
+        }
+        
+        // 搜索功能
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                // 这里可以实现实际的搜索逻辑
+                console.log('搜索:', searchTerm);
+            });
+        }
+        
+        // 话题筛选功能
+        const topicSelect = document.getElementById('topicSelect');
+        if (topicSelect) {
+            topicSelect.addEventListener('change', function() {
+                const selectedTopic = this.value;
+                // 这里可以实现实际的话题筛选逻辑
+                console.log('选择的话题:', selectedTopic);
+            });
+        }
+        
+        // 加载更多帖子
+        const loadMorePosts = document.getElementById('loadMorePosts');
+        if (loadMorePosts) {
+            loadMorePosts.addEventListener('click', function() {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fa fa-spinner fa-spin mr-2" aria-hidden="true"></i>加载中...';
+                this.disabled = true;
+                
+                // 模拟加载延迟
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                    // 这里可以添加实际加载更多帖子的逻辑
+                }, 1500);
+            });
+        }
+    </script>
+</body>
+</html>
