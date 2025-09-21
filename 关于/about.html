@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RDFZ沙盒社 - 关于我们</title>
+    <!-- 引入外部资源 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- 自定义Tailwind配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#16A34A',    // 主色调：绿色
+                        secondary: '#0891B2',  // 辅助色：蓝色
+                        accent: '#F59E0B',     // 强调色：橙色
+                        dark: '#1E293B',       // 深色
+                        light: '#F8FAFC',      // 浅色
+                        white: '#FFFFFF'       // 白色
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                        minecraft: ['Minecraft', 'sans-serif']
+                    },
+                    boxShadow: {
+                        'subtle': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                        'card': '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02)',
+                        'card-hover': '0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02)'
+                    }
+                },
+            }
+        }
+    </script>
+    
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .bg-pattern {
+                background-image: radial-gradient(rgba(22, 163, 74, 0.05) 1px, transparent 1px);
+                background-size: 30px 30px;
+            }
+            /* 移动端菜单样式 */
+            .mobile-menu-active {
+                display: flex !important;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background-color: white;
+                padding: 1rem;
+                margin-top: 0.25rem;
+                border-radius: 0 0 0.5rem 0.5rem;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+                z-index: 50;
+            }
+        }
+    </style>
+    
+    <style>
+        /* 添加现代字体和基础样式 */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: #FFFFFF;
+            scroll-behavior: smooth;
+        }
+        
+        /* 平滑过渡动画 */
+        .btn-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .btn-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+        }
+        
+        /* Logo悬停效果 */
+        .logo-container {
+            position: relative;
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+        
+        .logo-container:hover {
+            transform: scale(1.05);
+        }
+        
+        /* 导航栏滚动效果 */
+        .navbar {
+            transition: all 0.3s ease;
+        }
+        
+        .navbar.scrolled {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s ease forwards;
+        }
+        
+        .animate-delay-100 {
+            animation-delay: 0.1s;
+        }
+        
+        .animate-delay-200 {
+            animation-delay: 0.2s;
+        }
+        
+        .animate-delay-300 {
+            animation-delay: 0.3s;
+        }
+        
+        .animate-delay-400 {
+            animation-delay: 0.4s;
+        }
+        
+        /* 卡片悬停效果 */
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+        }
+        
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #16A34A;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #15803D;
+        }
+        
+        /* 用户信息悬停效果 */
+        .user-info {
+            transition: all 0.3s ease;
+        }
+        
+        .user-info:hover {
+            transform: scale(1.05);
+        }
+        
+        /* 积分样式 */
+        .points-badge {
+            background: linear-gradient(135deg, #F59E0B, #F97316);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-white">
+    <!-- 顶部导航栏 -->
+    <header class="navbar bg-white text-dark shadow-subtle fixed w-full z-50">
+        <div class="container mx-auto px-4 py-4">
+            <nav class="flex justify-between items-center">
+                <!-- 左侧Logo和名称 -->
+                <div class="flex items-center gap-3">
+                    <div class="logo-container">
+                        <img src="data:image/png;base64,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" alt="RDFZ沙盒社Logo" class="h-10 w-10">
+                    </div>
+                    <span class="text-xl font-semibold tracking-wide">SandBox 沙盒社</span>
+                </div>
+                
+                <!-- 中间导航按钮 -->
+                <div id="navLinks" class="hidden md:flex items-center space-x-6">
+                    <a href="index.html#forum" class="btn-hover text-dark hover:text-primary font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out flex items-center">
+                        <i class="fa fa-comments-o mr-2" aria-hidden="true"></i>论坛
+                    </a>
+                    <a href="index.html#activities" class="btn-hover text-dark hover:text-primary font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out flex items-center">
+                        <i class="fa fa-calendar mr-2" aria-hidden="true"></i>活动
+                    </a>
+                    <a href="../注册与登录/登录.html" class="btn-hover bg-primary hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out flex items-center">
+                        <i class="fa fa-user-o mr-2" aria-hidden="true"></i>登录
+                    </a>
+                </div>
+                
+                <!-- 右侧用户信息 -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <!-- 用户头像 -->
+                    <div class="user-info cursor-pointer">
+                        <img src="https://picsum.photos/seed/user123/40/40.jpg" alt="用户头像" class="h-10 w-10 rounded-full border-2 border-gray-200">
+                    </div>
+                    
+                    <!-- 用户昵称 -->
+                    <div class="user-info">
+                        <span class="text-dark font-medium">沙盒玩家</span>
+                    </div>
+                    
+                    <!-- 积分 -->
+                    <div class="user-info">
+                        <div class="points-badge">
+                            <i class="fa fa-coins" aria-hidden="true"></i>
+                            <span>1280</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 移动端菜单按钮 -->
+                <div class="md:hidden">
+                    <button id="menuButton" class="text-dark focus:outline-none p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                        <i class="fa fa-bars text-xl" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- 主内容区域 -->
+    <main class="flex-grow pt-24 pb-20 px-4 bg-gradient-to-b from-white via-white to-gray-50 bg-pattern">
+        <div class="container mx-auto max-w-4xl">
+            <div class="text-center mb-16 animate-fade-in-up">
+                <h1 class="text-4xl md:text-5xl font-bold text-primary mb-6 tracking-wide text-shadow">
+                    关于我们
+                </h1>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    了解RDFZ沙盒社的团队和我们的故事
+                </p>
+            </div>
+            
+            <!-- 团队介绍 -->
+            <div class="bg-white rounded-xl shadow-card p-8 mb-12 card-hover animate-fade-in-up animate-delay-100">
+                <h2 class="text-3xl font-bold text-dark mb-6 flex items-center">
+                    <i class="fa fa-users text-primary mr-3" aria-hidden="true"></i>
+                    我们的团队
+                </h2>
+                
+                <div class="space-y-8">
+                    <!-- 社长 -->
+                    <div class="flex items-start border-b border-gray-100 pb-6 last:border-0 last:pb-0">
+                        <div class="bg-primary/10 p-3 rounded-lg mr-4">
+                            <i class="fa fa-user-circle text-primary text-2xl" aria-hidden="true"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">社长</h3>
+                            <p class="text-lg text-gray-700 mt-1">于超怿</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 开发者 -->
+                    <div class="flex items-start">
+                        <div class="bg-secondary/10 p-3 rounded-lg mr-4">
+                            <i class="fa fa-code text-secondary text-2xl" aria-hidden="true"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">开发者</h3>
+                            <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <p class="text-lg text-gray-700 bg-gray-50 px-4 py-2 rounded-lg">潘绛</p>
+                                <p class="text-lg text-gray-700 bg-gray-50 px-4 py-2 rounded-lg">HTML_ZaiyouPan</p>
+                                <p class="text-lg text-gray-700 bg-gray-50 px-4 py-2 rounded-lg">刘知行</p>
+                                <p class="text-lg text-gray-700 bg-gray-50 px-4 py-2 rounded-lg">小刘刘</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 赞助信息 -->
+            <div class="bg-gradient-to-r from-primary to-secondary rounded-xl shadow-card p-8 text-white text-center animate-fade-in-up animate-delay-200">
+                <h2 class="text-3xl font-bold mb-4">建站不易，赞助一下吧QaQ</h2>
+                <p class="text-lg mb-6 opacity-90">您的支持是我们持续发展的动力</p>
+                <a href="https://afdian.com/a/rdfzsandbox_support" target="_blank" 
+                   class="btn-hover inline-block bg-white text-primary font-bold py-3 px-8 rounded-lg text-lg transition duration-300 ease-in-out shadow-subtle hover:shadow-lg">
+                    <i class="fa fa-heart mr-2" aria-hidden="true"></i>前往赞助
+                </a>
+            </div>
+        </div>
+    </main>
+    
+    <!-- 底部区域 -->
+    <footer class="bg-gray-50 text-dark py-12 border-t border-gray-200">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+                <div class="mb-6 md:mb-0 flex items-center gap-3">
+                    <div class="logo-container">
+                        <img src="data:image/png;base64,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" alt="RDFZ沙盒社Logo" class="h-8 w-8">
+                    </div>
+                    <span class="text-lg font-semibold">SandBox 沙盒社</span>
+                </div>
+                
+                <div class="flex space-x-8">
+                    <a href="index.html#about" class="text-dark hover:text-primary transition duration-300 ease-in-out flex items-center">
+                        <i class="fa fa-user-circle-o mr-2" aria-hidden="true"></i>关于
+                    </a>
+                    <a href="https://afdian.com/a/rdfzsandbox_support" class="text-dark hover:text-primary transition duration-300 ease-in-out flex items-center">
+                        <i class="fa fa-support mr-2" aria-hidden="true"></i>支持
+                    </a>
+                </div>
+            </div>
+            
+            <!-- 社交媒体链接 -->
+            <div class="mt-6 flex justify-center space-x-8">
+                <a href="#" class="text-dark hover:text-primary transition duration-300 ease-in-out hover:scale-110">
+                    <i class="fa fa-weixin text-2xl" aria-hidden="true"></i>
+                </a>
+                <a href="#" class="text-dark hover:text-primary transition duration-300 ease-in-out hover:scale-110">
+                    <i class="fa fa-weibo text-2xl" aria-hidden="true"></i>
+                </a>
+                <a href="#" class="text-dark hover:text-primary transition duration-300 ease-in-out hover:scale-110">
+                    <i class="fa fa-github text-2xl" aria-hidden="true"></i>
+                </a>
+                <a href="#" class="text-dark hover:text-primary transition duration-300 ease-in-out hover:scale-110">
+                    <i class="fa fa-youtube-play text-2xl" aria-hidden="true"></i>
+                </a>
+            </div>
+            
+            <!-- 版权信息 -->
+            <div class="mt-8 text-center text-gray-500">
+                <p>&copy; 2025 人大附中沙盒社. 保留所有权利.</p>
+                <p class="mt-2 text-sm">使用先进技术构建，为热爱游戏的你打造</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- JavaScript交互 -->
+    <script>
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+        
+        // 移动端菜单切换
+        const menuButton = document.getElementById('menuButton');
+        const navLinks = document.getElementById('navLinks');
+        
+        if (menuButton && navLinks) {
+            menuButton.addEventListener('click', function() {
+                // 使用一个类来控制菜单显示/隐藏，简化代码
+                navLinks.classList.toggle('mobile-menu-active');
+                
+                // 切换菜单图标
+                const icon = this.querySelector('i');
+                icon.classList.toggle('fa-bars');
+                icon.classList.toggle('fa-times');
+            });
+        }
+        
+        // 点击移动端菜单项后自动关闭菜单
+        document.querySelectorAll('#navLinks a').forEach(link => {
+            link.addEventListener('click', function() {
+                if (navLinks.classList.contains('mobile-menu-active')) {
+                    navLinks.classList.remove('mobile-menu-active');
+                    const icon = menuButton.querySelector('i');
+                    icon.classList.add('fa-bars');
+                    icon.classList.remove('fa-times');
+                }
+            });
+        });
+        
+        // 添加元素进入视口时的动画
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+        
+        // 检查浏览器是否支持IntersectionObserver
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-fade-in-up');
+                        setTimeout(() => {
+                            entry.target.classList.remove('opacity-0');
+                        }, 50); // 小延迟确保动画正常触发
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+            
+            // 观察所有需要动画的元素
+            document.querySelectorAll('.card-hover, h2').forEach(el => {
+                el.classList.add('opacity-0', 'transition-opacity', 'duration-500'); // 添加过渡效果
+                observer.observe(el);
+            });
+        } else {
+            // 降级处理：如果浏览器不支持IntersectionObserver，直接显示所有元素
+            document.querySelectorAll('.card-hover, h2').forEach(el => {
+                el.classList.remove('opacity-0');
+            });
+        }
+    </script>
+</body>
+</html>
