@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RDFZ沙盒社 - 首页</title>
+    <!-- 引入外部资源 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- 自定义Tailwind配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#16A34A',    // 主色调：绿色
+                        secondary: '#0891B2',  // 辅助色：蓝色
+                        accent: '#F59E0B',     // 强调色：橙色
+                        dark: '#1E293B',       // 深色
+                        light: '#F8FAFC',      // 浅色
+                        white: '#FFFFFF'       // 白色
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                        minecraft: ['Minecraft', 'sans-serif']
+                    },
+                    boxShadow: {
+                        'subtle': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                        'card': '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02)',
+                        'card-hover': '0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02)'
+                    }
+                },
+            }
+        }
+    </script>
+    
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .bg-pattern {
+                background-image: radial-gradient(rgba(22, 163, 74, 0.05) 1px, transparent 1px);
+                background-size: 30px 30px;
+            }
+            /* 移动端菜单样式 */
+            .mobile-menu-active {
+                display: flex !important;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background-color: white;
+                padding: 1rem;
+                margin-top: 0.25rem;
+                border-radius: 0 0 0.5rem 0.5rem;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+                z-index: 50;
+            }
+            
+            /* 移动端菜单中的按钮对齐样式 */
+            .mobile-menu-active a {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: flex-start !important;
+                padding: 0.75rem 1rem !important;
+                margin: 0.25rem 0 !important;
+                border-radius: 0.5rem !important;
+                transition: all 0.3s ease;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            
+            .mobile-menu-active a i {
+                margin-right: 0.75rem !important;
+                width: 20px !important;
+                text-align: center !important;
+                flex-shrink: 0 !important;
+            }
+            
+            /* 确保移动端菜单中的所有按钮样式一致 */
+            .mobile-menu-active .btn-hover {
+                transform: none !important;
+                box-shadow: none !important;
+            }
+            
+            .mobile-menu-active .btn-hover:hover {
+                transform: none !important;
+                box-shadow: none !important;
+                background-color: rgba(22, 163, 74, 0.1) !important;
+            }
+        }
+    </style>
+    
+    <style>
+        /* 添加现代字体和基础样式 */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: #FFFFFF;
+            scroll-behavior: smooth;
+        }
+        
+        /* 平滑过渡动画 */
+        .btn-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .btn-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+        }
+        
+        /* Logo悬停效果 */
+        .logo-container {
+            position: relative;
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+        
+        .logo-container:hover {
+            transform: scale(1.05);
+        }
+        
+        /* 导航栏滚动效果 */
+        .navbar {
+            transition: all 0.3s ease;
+        }
+        
+        .navbar.scrolled {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s ease forwards;
+        }
+        
+        .animate-delay-100 {
+            animation-delay: 0.1s;
+        }
+        
+        .animate-delay-200 {
+            animation-delay: 0.2s;
+        }
+        
+        .animate-delay-300 {
+            animation-delay: 0.3s;
+        }
+        
+        .animate-delay-400 {
+            animation-delay: 0.4s;
+        }
+        
+        /* 卡片悬停效果 */
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+        }
+        
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #16A34A;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #15803D;
+        }
+        
+        /* 用户信息悬停效果 */
+        .user-info {
+            transition: all 0.3s ease;
+        }
+        
+        .user-info:hover {
+            transform: scale(1.05);
+        }
+        
+        /* 积分样式 */
+        .points-badge {
+            background: linear-gradient(135deg, #F59E0B, #F97316);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-white">
+    <!-- 顶部导航栏 -->
+    <header class="navbar bg-white text-dark shadow-subtle fixed w-full z-50">
+        <div class="container mx-auto px-4 py-4">
+            <nav class="flex justify-between items-center">
+                <!-- 左侧Logo和名称 -->
+                <div class="flex items-center gap-3">
+                    <div class="logo-container">
+                        <img src="data:image/png;base64,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" alt="RDFZ沙盒社Logo" class="h-10 w-10">
+                    </div>
+                    <span class="text-xl font-semibold tracking-wide">SandBox 沙盒社</span>
+                </div>
+                
+                <!-- 中间导航按钮 -->
+                <div id="navLinks" class="hidden md:flex items-center space-x-6">
+                    <a href="../论坛/forum.html" class="btn-hover text-dark hover:text-primary font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out flex items-center">
+                        <i class="fa fa-comments-o mr-2" aria-hidden="true"></i>论坛
+                    </a>
+                    <a href="#activities" class="btn-hover text-dark hover:text-primary font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out flex items-center">
+                        <i class="fa fa-calendar mr-2" aria-hidden="true"></i>活动
+                    </a>
+                    <a href="../注册与登录/登录.html" class="btn-hover bg-primary hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out flex items-center">
+                        <i class="fa fa-user-o mr-2" aria-hidden="true"></i>登录
+                    </a>
+                    <a href="../注册与登录/用户信息.html" class="btn-hover bg-white hover:bg-gray-50 text-primary font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out flex items-center">
+                        <i class="fa fa-user mr-2" aria-hidden="true"></i>个人信息
+                    </a>
+                </div>
+                
+                <!-- 右侧用户信息 -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <!-- 用户头像 -->
+                    <div class="user-info cursor-pointer">
+                        <img src="https://picsum.photos/seed/user123/40/40.jpg" alt="用户头像" class="h-10 w-10 rounded-full border-2 border-gray-200">
+                    </div>
+                    
+                    <!-- 用户昵称 -->
+                    <div class="user-info">
+                        <span class="text-dark font-medium">沙盒玩家</span>
+                    </div>
+                    
+                    <!-- 积分 -->
+                    <div class="user-info">
+                        <div class="points-badge">
+                            <i class="fa fa-coins" aria-hidden="true"></i>
+                            <span>1280</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 移动端菜单按钮 -->
+                <div class="md:hidden">
+                    <button id="menuButton" class="text-dark focus:outline-none p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                        <i class="fa fa-bars text-xl" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </nav>
+            
+            <!-- 移动端菜单内容 -->
+            <div id="mobileMenu" class="hidden md:hidden bg-white border-t border-gray-200">
+                <div class="container mx-auto px-4 py-2">
+                    <a href="../论坛/forum.html" class="block px-4 py-2 text-dark hover:text-primary transition duration-300 ease-in-out">
+                        <i class="fa fa-comments-o mr-2" aria-hidden="true"></i>论坛
+                    </a>
+                    <a href="#activities" class="block px-4 py-2 text-dark hover:text-primary transition duration-300 ease-in-out">
+                        <i class="fa fa-calendar mr-2" aria-hidden="true"></i>活动
+                    </a>
+                    <a href="../注册与登录/登录.html" class="block px-4 py-2 text-dark hover:text-primary transition duration-300 ease-in-out">
+                        <i class="fa fa-sign-in mr-2" aria-hidden="true"></i>登录
+                    </a>
+                    <a href="../注册与登录/用户信息.html" class="block px-4 py-2 text-dark hover:text-primary transition duration-300 ease-in-out">
+                        <i class="fa fa-user mr-2" aria-hidden="true"></i>个人信息
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- 主内容区域 -->
+    <main class="flex-grow pt-24 pb-20 px-4 bg-gradient-to-b from-white via-white to-gray-50 bg-pattern">
+        <!-- 锚点位置 -->
+        <div id="join" class="absolute top-24"></div>
+        <div id="about" class="absolute top-48"></div>
+        <div id="forum" class="absolute top-72"></div>
+        <div id="support" class="absolute top-96"></div>
+        <div class="text-center max-w-4xl mx-auto">
+            <div class="mb-8 animate-bounce">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWDg4N3d3dtbW17e3t1dXWBgYGHh4d5eXlzc3OLi4ubm5uVlZWPj4+NjY19fX2JiYl/f39ra2uRkZGZmZlpaWmXl5dvb29xcXGTk5NnZ2c8TV1mAAAAG3RSTlNAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAvEOwtAAAFVklEQVR4XpWWB67c2BUFb3g557T/hRo9/WUMZHlgr4Bg8Z4qQgQJlHI4A8SzFVrapvmTF9O7dmYRFZ60YiBhJRCgh1FYhiLAmdvX0CzTOpNE77ME0Zty/nWWzchDtiqrmQDeuv3powQ5ta2eN0FY0InkqDD73lT9c9lEzwUNqgFHs9VQce3TVClFCQrSTfOiYkVJQBmpbq2L6iZavPnAPcoU0dSw0SUTqz/GtrGuXfbyyBniKykOWQWGqwwMA7QiYAxi+IlPdqo+hYHnUt5ZPfnsHJyNiDtnpJyayNBkF6cWoYGAMY92U2hXHF/C1M8uP/ZtYdiuj26UdAdQQSXQErwSOMzt/XWRWAz5GuSBIkwG1H3FabJ2OsUOUhGC6tK4EMtJO0ttC6IBD3kM0ve0tJwMdSfjZo+EEISaeTr9P3wYrGjXqyC1krcKdhMpxEnt5JetoulscpyzhXN5FRpuPHvbeQaKxFAEB6EN+cYN6xD7RYGpXpNndMmZgM5Dcs3YSNFDHUo2LGfZuukSWyUYirJAdYbF3MfqEKmjM+I2EfhA94iG3L7uKrR+GdWD73ydlIB+6hgref1QTlmgmbM3/LeX5GI1Ux1RWpgxpLuZ2+I+IjzZ8wqE4nilvQdkUdfhzI5QDWy+kw5Wgg2pGpeEVeCCA7b85BO3F9DzxB3cdqvBzWcmzbyMiqhzuYqtHRVG2y4x+KOlnyqla8AoWWpuBoYRxzXrfKuILl6SfiWCbjxoZJUaCBj1CjH7GIaDbc9kqBY3W/Rgjda1iqQcOJu2WW+76pZC9QG7M00dffe9hNnseupFL53r8F7YHSwJWUKP2q+k7RdsxyOB11n0xtOvnW4irMMFNV4H0uqwS5ExsmP9AxbDTc9JwgneAT5vTiUSm1E7BSflSt3bfa1tv8Di3R8n3Af7MNWzs49hmauE2wP+ttrq+AsWpFG2awvsuOqbipWHgtuvuaAE+A1Z/7gC9hesnr+7wqCwG8c5yAg3AL1fm8T9AZtp/bbJGwl1pNrE7RuOX7PeMRUERVaPpEs+yqeoSmuOlokqw49pgomjLeh7icHNlG19yjs6XXOMedYm5xH2YxpV2tc0Ro2jJfxC50ApuxGob7lMsxfTbeUv07TyYxpeLucEH1gNd4IKH2LAg5TdVhlCafZvpskfncCfx8pOhJzd76bJWeYFnFciwcYfubRc12Ip/ppIhA1/mSZ/RxjFDrJC5xifFjJpY2Xl5zXdguFqYyTR1zSp1Y9p+tktDYYSNflcxI0iyO4TPBdlRcpeqjK/piF5bklq77VSEaA+z8qmJTFzIWiitbnzR794USKBUaT0NTEsVjZqLaFVqJoPN9ODG70IPbfBHKK+/q/AWR0tJzYHRULOa4MP+W/HfGadZUbfw177G7j/OGbIs8TahLyynl4X4RinF793Oz+BU0saXtUHrVBFT/DnA3ctNPoGbs4hRIjTok8i+algT1lTHi4SxFvONKNrgQFAq2/gFnWMXgwffgYMJpiKYkmW3tTg3ZQ9Jq+f8XN+A5eeUKHWvJWJ2sgJ1Sop+wwhqFVijqWaJhwtD8MNlSBeWNNWTa5Z5kPZw5+LbVT99wqTdx29lMUH4OIG/D86ruKEauBjvH5xy6um/Sfj7ei6UUVk4AIl3MyD4MSSTOFgSwsH/QJWaQ5as7ZcmgBZkzjjU1UrQ74ci1gWBCSGHtuV1H2mhSnO3Wp/3fEV5a+4wz//6qy8JxjZsmxxy5+4w9CDNJY09T072iKG0EnOS0arEYgXqYnXcYHwjTtUNAcMelOd4xpkoqiTYICWFq0JSiPfPDQdnt+4/wuqcXY47QILbgAAAABJRU5ErkJggg==" alt="RDFZ沙盒社大Logo" class="h-40 w-40 mx-auto">
+            </div>
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-6 tracking-wide text-shadow animate-fade-in-up">
+                欢迎来到RDFZ沙盒社
+            </h1>
+            <p class="text-lg md:text-xl text-gray-700 mb-8 max-w-2xl mx-auto leading-relaxed animate-fade-in-up animate-delay-100">
+                探索无限可能，创造你的世界。在这里，我们一起构建、分享和创造令人惊叹的游戏体验。
+            </p>
+            <div class="flex flex-wrap justify-center gap-6 mt-10 animate-fade-in-up animate-delay-200">
+                <a href="../注册与登录/注册.html" class="btn-hover bg-primary hover:bg-green-600 text-white font-medium py-3 px-8 rounded-lg text-lg transition duration-300 ease-in-out shadow-subtle group">
+                    <i class="fa fa-heart mr-2 group-hover:animate-pulse" aria-hidden="true"></i>加入我们
+                </a>
+                <a href="../关于/about.html" class="btn-hover bg-white hover:bg-gray-50 text-primary font-medium py-3 px-8 rounded-lg text-lg transition duration-300 ease-in-out shadow-subtle border border-primary group">
+                    <i class="fa fa-info-circle mr-2 group-hover:animate-pulse" aria-hidden="true"></i>了解更多
+                </a>
+            </div>
+        </div>
+        
+        <!-- 特色内容区域 -->
+        <div class="container mx-auto mt-24">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-dark mb-16 animate-fade-in-up">
+                我们的特色
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- 特色卡片1 -->
+                <div class="bg-white rounded-xl shadow-card p-8 card-hover animate-fade-in-up animate-delay-100">
+                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6 text-primary">
+                        <i class="fa fa-users text-3xl" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 text-dark">活跃社区</h3>
+                    <p class="text-gray-600">
+                        加入我们充满热情的游戏社区，与志同道合的玩家一起分享创意、解决问题，共同成长。
+                    </p>
+                </div>
+                
+                <!-- 特色卡片2 -->
+                <div class="bg-white rounded-xl shadow-card p-8 card-hover animate-fade-in-up animate-delay-200">
+                    <div class="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mb-6 text-secondary">
+                        <i class="fa fa-cubes text-3xl" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 text-dark">创意工坊</h3>
+                    <p class="text-gray-600">
+                        发挥你的想象力，在我们的创意工坊中构建令人惊叹的结构和游戏机制，展示你的才华。
+                    </p>
+                </div>
+                
+                <!-- 特色卡片3 -->
+                <div class="bg-white rounded-xl shadow-card p-8 card-hover animate-fade-in-up animate-delay-300">
+                    <div class="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mb-6 text-accent">
+                        <i class="fa fa-trophy text-3xl" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 text-dark">定期活动</h3>
+                    <p class="text-gray-600">
+                        参与我们组织的各类游戏活动和比赛，结交新朋友，挑战自我，赢取丰厚奖励。
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 最近活动区域 -->
+        <div id="activities" class="container mx-auto mt-24">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-dark mb-16 animate-fade-in-up">
+                最近活动
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- 活动卡片1 -->
+                <div class="bg-white rounded-xl shadow-card overflow-hidden card-hover animate-fade-in-up animate-delay-100">
+                    <div class="h-60 bg-primary/10 flex items-center justify-center">
+                        <i class="fa fa-calendar-check-o text-6xl text-primary" aria-hidden="true"></i>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center text-sm text-gray-500 mb-3">
+                            <i class="fa fa-clock-o mr-2" aria-hidden="true"></i>
+                            <span>2025年0月0日</span>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3 text-dark">建筑大赛</h3>
+                        <p class="text-gray-600 mb-4">
+                            展示你的建筑才华，参加我们的月度建筑大赛，主题为"未来城市"。
+                        </p>
+                        <a href="#" class="text-primary hover:text-primary/80 font-medium flex items-center">
+                            了解详情 <i class="fa fa-arrow-right ml-2" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- 活动卡片2 -->
+                <div class="bg-white rounded-xl shadow-card overflow-hidden card-hover animate-fade-in-up animate-delay-200">
+                    <div class="h-60 bg-secondary/10 flex items-center justify-center">
+                        <i class="fa fa-gamepad text-6xl text-secondary" aria-hidden="true"></i>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center text-sm text-gray-500 mb-3">
+                            <i class="fa fa-clock-o mr-2" aria-hidden="true"></i>
+                            <span>2025年0月0日</span>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3 text-dark">PvP挑战赛</h3>
+                        <p class="text-gray-600 mb-4">
+                            准备好战斗了吗？我们的PvP挑战赛即将开始，考验你的战斗技巧和团队协作能力。
+                        </p>
+                        <a href="#" class="text-secondary hover:text-secondary/80 font-medium flex items-center">
+                            报名参加 <i class="fa fa-arrow-right ml-2" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- 底部区域 -->
+    <footer class="bg-gray-50 text-dark py-12 border-t border-gray-200">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+                <div class="mb-6 md:mb-0 flex items-center gap-3">
+                    <div class="logo-container">
+                        <img src="data:image/png;base64,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" alt="RDFZ沙盒社Logo" class="h-8 w-8">
+                    </div>
+                    <span class="text-lg font-semibold">SandBox 沙盒社</span>
+                </div>
+                
+                <div class="flex space-x-8">
+                    <a href="../关于/about.html" class="text-dark hover:text-primary transition duration-300 ease-in-out flex items-center">
+                        <i class="fa fa-user-circle-o mr-2" aria-hidden="true"></i>关于
+                    </a>
+                    <a href="https://afdian.com/a/rdfzsandbox_support" class="text-dark hover:text-primary transition duration-300 ease-in-out flex items-center">
+                        <i class="fa fa-support mr-2" aria-hidden="true"></i>支持
+                    </a>
+                </div>
+            </div>
+            
+            <!-- 社交媒体链接 -->
+            <div class="mt-6 flex justify-center space-x-8">
+                <a href="#" class="text-dark hover:text-primary transition duration-300 ease-in-out hover:scale-110">
+                    <i class="fa fa-weixin text-2xl" aria-hidden="true"></i>
+                </a>
+                <a href="#" class="text-dark hover:text-primary transition duration-300 ease-in-out hover:scale-110">
+                    <i class="fa fa-weibo text-2xl" aria-hidden="true"></i>
+                </a>
+                <a href="#" class="text-dark hover:text-primary transition duration-300 ease-in-out hover:scale-110">
+                    <i class="fa fa-github text-2xl" aria-hidden="true"></i>
+                </a>
+                <a href="#" class="text-dark hover:text-primary transition duration-300 ease-in-out hover:scale-110">
+                    <i class="fa fa-youtube-play text-2xl" aria-hidden="true"></i>
+                </a>
+            </div>
+            
+            <!-- 版权信息 -->
+            <div class="mt-8 text-center text-gray-500">
+                <p>&copy; 2025 人大附中沙盒社. 保留所有权利.</p>
+                <p class="mt-2 text-sm">使用先进技术构建，为热爱游戏的你打造</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- JavaScript交互 -->
+    <script>
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+        
+        // 平滑滚动效果
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 100, // 减去导航栏高度
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // 移动端菜单切换
+        const menuButton = document.getElementById('menuButton');
+        const mobileMenu = document.getElementById('mobileMenu');
+        
+        if (menuButton && mobileMenu) {
+            menuButton.addEventListener('click', function() {
+                // 切换菜单显示/隐藏
+                mobileMenu.classList.toggle('hidden');
+                
+                // 切换菜单图标
+                const icon = this.querySelector('i');
+                icon.classList.toggle('fa-bars');
+                icon.classList.toggle('fa-times');
+            });
+        }
+        
+        // 点击移动端菜单项后自动关闭菜单
+        document.querySelectorAll('#mobileMenu a').forEach(link => {
+            link.addEventListener('click', function() {
+                if (!mobileMenu.classList.contains('hidden')) {
+                    mobileMenu.classList.add('hidden');
+                    const icon = menuButton.querySelector('i');
+                    icon.classList.add('fa-bars');
+                    icon.classList.remove('fa-times');
+                }
+            });
+        });
+        
+        // 添加元素进入视口时的动画 - 修复版本
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+        
+        // 检查浏览器是否支持IntersectionObserver
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-fade-in-up');
+                        setTimeout(() => {
+                            entry.target.classList.remove('opacity-0');
+                        }, 50); // 小延迟确保动画正常触发
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+            
+            // 观察所有需要动画的元素
+            document.querySelectorAll('.card-hover, h2').forEach(el => {
+                el.classList.add('opacity-0', 'transition-opacity', 'duration-500'); // 添加过渡效果
+                observer.observe(el);
+            });
+        } else {
+            // 降级处理：如果浏览器不支持IntersectionObserver，直接显示所有元素
+            document.querySelectorAll('.card-hover, h2').forEach(el => {
+                el.classList.remove('opacity-0');
+            });
+        }
+    </script>
+</body>
+</html>
