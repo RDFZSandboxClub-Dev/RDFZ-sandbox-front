@@ -228,14 +228,16 @@
                 password: document.getElementById('password').value,
                 grade: document.getElementById('grade').value,
                 className: document.getElementById('className').value,
+                nickname: document.getElementById('nickname').value || "", // 如果为空则设置为空字符串
                 minecraftId: document.getElementById('minecraftId').value || "" // 如果为空则设置为空字符串
             };
             
             try {
                 // 调用注册API
-                const response = await fetch('/auth/register', {
+                const response = await fetch('http://36.111.150.146:8888/rdfz-md-server/auth/register', {
                     method: 'POST',
                     headers: {
+                        'accept': 'application/json',
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(formData)
@@ -243,10 +245,12 @@
                 
                 const data = await response.json();
                 
-                if (response.ok) {
-                    // 注册成功，保存token
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('user', JSON.stringify(data.user));
+                if (response.ok && data.code === 0) {
+                    // 注册成功，保存token和用户信息
+                    localStorage.setItem('accessToken', data.data.accessToken);
+                    localStorage.setItem('refreshToken', data.data.refreshToken);
+                    localStorage.setItem('tokenType', data.data.tokenType);
+                    localStorage.setItem('user', JSON.stringify(data.data.user));
                     
                     // 显示成功消息
                     alert('注册成功！');
@@ -256,14 +260,8 @@
                 } else {
                     // 注册失败，显示错误信息
                     let errorMessage = '注册失败';
-                    if (data.error === 'BAD_REQUEST') {
-                        errorMessage = '请求参数错误';
-                    } else if (data.error === 'USERNAME_ALREADY_EXISTS') {
-                        errorMessage = '用户名已存在';
-                    } else if (data.error === 'EMAIL_ALREADY_USED') {
-                        errorMessage = '邮箱已被使用';
-                    } else if (data.message) {
-                        errorMessage = data.message;
+                    if (data.code !== 0) {
+                        errorMessage = data.message || '注册失败';
                     }
                     alert(errorMessage);
                 }

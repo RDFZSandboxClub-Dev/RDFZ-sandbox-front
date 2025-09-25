@@ -160,9 +160,10 @@
             
             try {
                 // 调用登录API
-                const response = await fetch('/auth/login', {
+                const response = await fetch('http://36.111.150.146:8888/rdfz-md-server/auth/login', {
                     method: 'POST',
                     headers: {
+                        'accept': 'application/json',
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(formData)
@@ -170,10 +171,12 @@
                 
                 const data = await response.json();
                 
-                if (response.ok) {
-                    // 登录成功，保存token
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('user', JSON.stringify(data.user));
+                if (response.ok && data.code === 0) {
+                    // 登录成功，保存token和用户信息
+                    localStorage.setItem('accessToken', data.data.accessToken);
+                    localStorage.setItem('refreshToken', data.data.refreshToken);
+                    localStorage.setItem('tokenType', data.data.tokenType);
+                    localStorage.setItem('user', JSON.stringify(data.data.user));
                     
                     // 显示成功消息
                     alert('登录成功！');
@@ -183,12 +186,8 @@
                 } else {
                     // 登录失败，显示错误信息
                     let errorMessage = '登录失败';
-                    if (data.error === 'INVALID_CREDENTIALS') {
-                        errorMessage = '邮箱或密码错误';
-                    } else if (data.error === 'USER_BANNED') {
-                        errorMessage = '账号已被封禁';
-                    } else if (data.message) {
-                        errorMessage = data.message;
+                    if (data.code !== 0) {
+                        errorMessage = data.message || '登录失败';
                     }
                     alert(errorMessage);
                 }
