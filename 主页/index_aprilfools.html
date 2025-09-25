@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RDFZ沙盒社 - 愚人节特别版</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 愚人节样式 */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        /* 黑客图标样式 */
+        #hacker-icon {
+            position: fixed;
+            top: 45%;
+            left: -100px;
+            transform: translateY(-50%);
+            font-size: 80px;
+            color: #0f0;
+            opacity: 0;
+            transition: all 1s ease-in-out;
+            z-index: 1000;
+        }
+        
+        #hacker-message {
+            position: fixed;
+            top: 55%;
+            right: -500px;
+            transform: translateY(-50%);
+            color: #0f0;
+            font-size: 24px;
+            max-width: 400px;
+            opacity: 0;
+            transition: all 1s ease-in-out;
+            z-index: 1000;
+            text-shadow: 0 0 10px #0f0;
+        }
+        
+        /* 游戏容器样式 */
+        #game-container {
+            display: none;
+            width: 100%;
+            height: 100vh;
+            background-color: #111;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #game-score {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #fff;
+            font-size: 24px;
+            z-index: 100;
+        }
+        
+        #game-instruction {
+            position: absolute;
+            top: 60px;
+            left: 20px;
+            color: #fff;
+            font-size: 18px;
+            z-index: 100;
+        }
+        
+        /* 小恐龙样式 */
+        #dino {
+            position: absolute;
+            bottom: 50px;
+            left: 50px;
+            width: 50px;
+            height: 50px;
+            background-color: #fff;
+            z-index: 10;
+        }
+        
+        /* 障碍物样式 */
+        .obstacle {
+            position: absolute;
+            bottom: 50px;
+            width: 30px;
+            height: 30px;
+            background-color: #f00;
+            z-index: 10;
+        }
+        
+        /* 游戏结束消息样式 */
+        #game-over-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 24px;
+            text-align: center;
+            display: none;
+            z-index: 100;
+        }
+        
+        /* 混乱模式样式 */
+        .chaos-mode {
+            animation: chaos 2s infinite;
+        }
+        
+        @keyframes chaos {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(5deg); }
+            50% { transform: rotate(0deg); }
+            75% { transform: rotate(-5deg); }
+            100% { transform: rotate(0deg); }
+        }
+        
+        /* 赞助按钮跟随鼠标样式 */
+        #follow-button {
+            position: fixed;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            z-index: 1000;
+            display: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 正常主页样式 */
+        #normal-homepage {
+            display: none;
+            width: 100%;
+            height: 100vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- 黑客图标和消息 -->
+    <div id="hacker-icon">
+        <i class="fa fa-user-secret"></i>
+    </div>
+    <div id="hacker-message">
+        主页已被黑客入侵，我们来玩一场生死游戏吧，成功即可摆脱植入😎
+    </div>
+    
+    <!-- 游戏容器 -->
+    <div id="game-container">
+        <div id="game-score">分数: 0</div>
+        <div id="game-instruction">达到50你就赢了</div>
+        <div id="dino"></div>
+        <div id="game-over-message"></div>
+    </div>
+    
+    <!-- 跟随鼠标的赞助按钮 -->
+    <div id="follow-button">赞助我们</div>
+    
+    <!-- 正常主页内容 -->
+    <div id="normal-homepage">
+        <!-- 这里是正常主页的内容，从原主页复制 -->
+        <header class="navbar fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-sm z-50 transition-all duration-300 ease-in-out">
+            <div class="container mx-auto px-4">
+                <nav class="flex justify-between items-center py-4">
+                    <!-- Logo和名称 -->
+                    <div class="flex items-center space-x-3">
+                        <div class="logo-container">
+                            <img src="data:image/png;base64,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" alt="RDFZ沙盒社Logo" class="h-10 w-10">
+                        </div>
+                        <span class="text-xl font-bold text-primary">SandBox 沙盒社</span>
+                    </div>
+                    
+                    <!-- 中间导航按钮 -->
+                    <div class="hidden md:flex items-center space-x-1">
+                        <a href="#join" class="nav-link px-4 py-2 rounded-lg text-dark hover:text-primary hover:bg-gray-100 transition duration-300 ease-in-out">
+                            <i class="fa fa-home mr-2" aria-hidden="true"></i>首页
+                        </a>
+                        <a href="../论坛/forum.html" class="nav-link px-4 py-2 rounded-lg text-dark hover:text-primary hover:bg-gray-100 transition duration-300 ease-in-out">
+                            <i class="fa fa-comments-o mr-2" aria-hidden="true"></i>论坛
+                        </a>
+                        <a href="#activities" class="nav-link px-4 py-2 rounded-lg text-dark hover:text-primary hover:bg-gray-100 transition duration-300 ease-in-out">
+                            <i class="fa fa-calendar mr-2" aria-hidden="true"></i>活动
+                        </a>
+                        <a href="../积分兑换/积分兑换.html" class="nav-link px-4 py-2 rounded-lg text-dark hover:text-primary hover:bg-gray-100 transition duration-300 ease-in-out">
+                            <i class="fa fa-coins mr-2" aria-hidden="true"></i>积分兑换
+                        </a>
+                        <a href="../关于/about.html" class="nav-link px-4 py-2 rounded-lg text-dark hover:text-primary hover:bg-gray-100 transition duration-300 ease-in-out">
+                            <i class="fa fa-info-circle mr-2" aria-hidden="true"></i>关于
+                        </a>
+                    </div>
+                    
+                    <!-- 右侧按钮 -->
+                    <div class="hidden md:flex items-center space-x-4">
+                        <a href="../注册与登录/登录.html" class="btn-hover bg-white hover:bg-gray-50 text-primary font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out flex items-center">
+                            <i class="fa fa-sign-in mr-2" aria-hidden="true"></i>登录
+                        </a>
+                        <a href="../注册与登录/用户信息.html" class="btn-hover bg-white hover:bg-gray-50 text-primary font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out flex items-center">
+                            <i class="fa fa-user mr-2" aria-hidden="true"></i>个人信息
+                        </a>
+                    </div>
+                    
+                    <!-- 右侧用户信息 -->
+                    <div class="hidden md:flex items-center space-x-4">
+                        <!-- 用户头像 -->
+                        <div class="user-info cursor-pointer">
+                            <img src="https://picsum.photos/seed/user123/40/40.jpg" alt="用户头像" class="h-10 w-10 rounded-full border-2 border-gray-200">
+                        </div>
+                        
+                        <!-- 用户昵称 -->
+                        <div class="user-info">
+                            <span class="text-dark font-medium">沙盒玩家</span>
+                        </div>
+                        
+                        <!-- 积分 -->
+                        <div class="user-info">
+                            <div class="points-badge">
+                                <i class="fa fa-coins" aria-hidden="true"></i>
+                                <span>1280</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 移动端菜单按钮 -->
+                    <div class="md:hidden">
+                        <button id="menuButton" class="text-dark focus:outline-none p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                            <i class="fa fa-bars text-xl" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </nav>
+                
+                <!-- 移动端菜单内容 -->
+                <div id="mobileMenu" class="hidden md:hidden bg-white border-t border-gray-200">
+                    <div class="container mx-auto px-4 py-2">
+                        <a href="../论坛/forum.html" class="block px-4 py-2 text-dark hover:text-primary transition duration-300 ease-in-out">
+                            <i class="fa fa-comments-o mr-2" aria-hidden="true"></i>论坛
+                        </a>
+                        <a href="#activities" class="block px-4 py-2 text-dark hover:text-primary transition duration-300 ease-in-out">
+                            <i class="fa fa-calendar mr-2" aria-hidden="true"></i>活动
+                        </a>
+                        <a href="../注册与登录/登录.html" class="block px-4 py-2 text-dark hover:text-primary transition duration-300 ease-in-out">
+                            <i class="fa fa-sign-in mr-2" aria-hidden="true"></i>登录
+                        </a>
+                        <a href="../注册与登录/用户信息.html" class="block px-4 py-2 text-dark hover:text-primary transition duration-300 ease-in-out">
+                            <i class="fa fa-user mr-2" aria-hidden="true"></i>个人信息
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- 主内容区域 -->
+        <main class="flex-grow pt-24 pb-20 px-4 bg-gradient-to-b from-white via-white to-gray-50 bg-pattern">
+            <!-- 锚点位置 -->
+            <div id="join" class="absolute top-24"></div>
+            <div id="about" class="absolute top-48"></div>
+            <div id="forum" class="absolute top-72"></div>
+            <div id="support" class="absolute top-96"></div>
+            <div class="text-center max-w-4xl mx-auto">
+                <div class="mb-8 animate-bounce">
+                    <img src="data:image/png;base64,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" alt="RDFZ沙盒社大Logo" class="h-40 w-40 mx-auto">
+                </div>
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-6 tracking-wide text-shadow animate-fade-in-up">
+                    欢迎来到RDFZ沙盒社
+                </h1>
+                <p class="text-lg md:text-xl text-gray-700 mb-8 max-w-2xl mx-auto leading-relaxed animate-fade-in-up animate-delay-100">
+                    探索无限可能，创造你的世界。在这里，我们一起构建、分享和创造令人惊叹的游戏体验。
+                </p>
+                <div class="flex flex-wrap justify-center gap-6 mt-10 animate-fade-in-up animate-delay-200">
+                    <a href="../注册与登录/注册.html" class="btn-hover bg-primary hover:bg-green-600 text-white font-medium py-3 px-8 rounded-lg text-lg transition duration-300 ease-in-out shadow-subtle group">
+                        <i class="fa fa-heart mr-2 group-hover:animate-pulse" aria-hidden="true"></i>加入我们
+                    </a>
+                    <a href="../关于/about.html" class="btn-hover bg-white hover:bg-gray-50 text-primary font-medium py-3 px-8 rounded-lg text-lg transition duration-300 ease-in-out shadow-subtle border border-primary group">
+                        <i class="fa fa-info-circle mr-2 group-hover:animate-pulse" aria-hidden="true"></i>了解更多
+                    </a>
+                </div>
+            </div>
+            
+            <!-- 特色内容区域 -->
+            <div class="container mx-auto mt-24">
+                <h2 class="text-3xl md:text-4xl font-bold text-center text-dark mb-16 animate-fade-in-up">
+                    我们的特色
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- 特色卡片1 -->
+                    <div class="bg-white rounded-xl shadow-card p-8 card-hover animate-fade-in-up animate-delay-100">
+                        <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6 text-primary">
+                            <i class="fa fa-users text-3xl" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-dark">活跃社区</h3>
+                        <p class="text-gray-600">
+                            加入我们充满热情的游戏社区，与志同道合的玩家一起分享创意、解决问题，共同成长。
+                        </p>
+                    </div>
+                    
+                    <!-- 特色卡片2 -->
+                    <div class="bg-white rounded-xl shadow-card p-8 card-hover animate-fade-in-up animate-delay-200">
+                        <div class="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mb-6 text-secondary">
+                            <i class="fa fa-cubes text-3xl" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-dark">创意工坊</h3>
+                        <p class="text-gray-600">
+                            发挥你的想象力，在我们的创意工坊中构建令人惊叹的结构和游戏机制，展示你的才华。
+                        </p>
+                    </div>
+                    
+                    <!-- 特色卡片3 -->
+                    <div class="bg-white rounded-xl shadow-card p-8 card-hover animate-fade-in-up animate-delay-300">
+                        <div class="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mb-6 text-accent">
+                            <i class="fa fa-trophy text-3xl" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-dark">定期活动</h3>
+                        <p class="text-gray-600">
+                            参与我们组织的各类游戏活动和比赛，结交新朋友，挑战自我，赢取丰厚奖励。
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 最近活动区域 -->
+            <div id="activities" class="container mx-auto mt-24">
+                <h2 class="text-3xl md:text-4xl font-bold text-center text-dark mb-16 animate-fade-in-up">
+                    最近活动
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- 活动卡片1 -->
+                    <div class="bg-white rounded-xl shadow-card overflow-hidden card-hover animate-fade-in-up animate-delay-100">
+                        <div class="h-60 bg-primary/10 flex items-center justify-center">
+                            <i class="fa fa-calendar-check-o text-6xl text-primary" aria-hidden="true"></i>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center text-sm text-gray-500 mb-3">
+                                <i class="fa fa-clock-o mr-2" aria-hidden="true"></i>
+                                <span>2025年0月0日</span>
+                            </div>
+                            <h3 class="text-2xl font-bold mb-3 text-dark">建筑大赛</h3>
+                            <p class="text-gray-600 mb-4">
+                                展示你的建筑才华，参加我们的月度建筑大赛，主题为"未来城市"。
+                            </p>
+                            <a href="#" class="text-primary hover:text-primary/80 font-medium flex items-center">
+                                了解详情 <i class="fa fa-arrow-right ml-2" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- 活动卡片2 -->
+                    <div class="bg-white rounded-xl shadow-card overflow-hidden card-hover animate-fade-in-up animate-delay-200">
+                        <div class="h-60 bg-secondary/10 flex items-center justify-center">
+                            <i class="fa fa-gamepad text-6xl text-secondary" aria-hidden="true"></i>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center text-sm text-gray-500 mb-3">
+                                <i class="fa fa-clock-o mr-2" aria-hidden="true"></i>
+                                <span>2025年0月0日</span>
+                            </div>
+                            <h3 class="text-2xl font-bold mb-3 text-dark">PvP挑战赛</h3>
+                            <p class="text-gray-600 mb-4">
+                                准备好战斗了吗？我们的PvP挑战赛即将开始，考验你的战斗技巧和团队协作能力。
+                            </p>
+                            <a href="#" class="text-secondary hover:text-secondary/80 font-medium flex items-center">
+                                报名参加 <i class="fa fa-arrow-right ml-2" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- 底部区域 -->
+        <footer class="bg-gray-50 text-dark py-12 border-t border-gray-200">
+            <div class="container mx-auto px-4">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+                    <div class="mb-6 md:mb-0 flex items-center gap-3">
+                        <div class="logo-container">
+                            <img src="data:image/png;base64,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" alt="RDFZ沙盒社Logo" class="h-8 w-8">
+                        </div>
+                        <span class="text-lg font-semibold">SandBox 沙盒社</span>
+                    </div>
+                    
+                    <div class="flex space-x-8">
+                        <a href="../关于/about.html" class="text-dark hover:text-primary transition duration-300 ease-in-out flex items-center">
+                            <i class="fa fa-user-circle-o mr-2" aria-hidden="true"></i>关于
+                        </a>
+                        <a href="https://afdian.com/a/rdfzsandbox_support" class="text-dark hover:text-primary transition duration-300 ease-in-out flex items-center">
+                            <i class="fa fa-support mr-2" aria-hidden="true"></i>支持
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- 社交媒体链接 -->
+                <div class="mt-6 flex justify-center space-x-8">
+                    <a href="#" class="text-dark hover:text-primary transition duration-300 ease-in-out hover:scale-110">
+                        <i class="fa fa-weixin text-2xl" aria-hidden="true"></i>
+                    </a>
+                    <a href="#" class="text-dark hover:text-primary transition duration-300 ease-in-out hover:scale-110">
+                        <i class="fa fa-weibo text-2xl" aria-hidden="true"></i>
+                    </a>
+                    <a href="#" class="text-dark hover:text-primary transition duration-300 ease-in-out hover:scale-110">
+                        <i class="fa fa-github text-2xl" aria-hidden="true"></i>
+                    </a>
+                    <a href="#" class="text-dark hover:text-primary transition duration-300 ease-in-out hover:scale-110">
+                        <i class="fa fa-youtube-play text-2xl" aria-hidden="true"></i>
+                    </a>
+                </div>
+                
+                <!-- 版权信息 -->
+                <div class="mt-8 text-center text-gray-500">
+                    <p>&copy; 2025 人大附中沙盒社. 保留所有权利.</p>
+                    <p class="mt-2 text-sm">使用先进技术构建，为热爱游戏的你打造</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // 愚人节脚本
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1秒后显示黑客图标和消息
+            setTimeout(function() {
+                const hackerIcon = document.getElementById('hacker-icon');
+                const hackerMessage = document.getElementById('hacker-message');
+                
+                // 显示黑客图标
+                hackerIcon.style.left = '200px';
+                hackerIcon.style.opacity = '1';
+                
+                // 显示黑客消息
+                setTimeout(function() {
+                    hackerMessage.style.right = '50px';
+                    hackerMessage.style.opacity = '1';
+                    
+                    // 5秒后开始游戏
+                    setTimeout(function() {
+                        hackerIcon.style.display = 'none';
+                        hackerMessage.style.display = 'none';
+                        startGame();
+                    }, 5000);
+                }, 1000);
+            }, 1000);
+            
+            // 游戏变量
+            let gameScore = 0;
+            let gameRunning = false;
+            let obstacles = [];
+            let gameSpeed = 3; // 降低游戏速度
+            let isJumping = false;
+            let finalChance = false;
+            let chaosMode = false;
+            let trapTriggered = false; // 添加陷阱触发标志
+            
+            // 开始游戏
+            function startGame() {
+                document.getElementById('game-container').style.display = 'block';
+                gameRunning = true;
+                gameScore = 0;
+                updateScore();
+                gameLoop();
+            }
+            
+            // 更新分数
+            function updateScore() {
+                document.getElementById('game-score').textContent = '分数: ' + gameScore;
+                
+                // 当分数达到49分时，终止游戏并显示消息（降低目标分数）
+                // 只在第一次达到49分时触发陷阱
+                if (gameScore === 49 && !trapTriggered) {
+                    trapTriggered = true; // 标记陷阱已触发
+                    endGameAt49();
+                }
+                
+                // 当分数达到50分时，结束游戏并进入混乱模式（降低目标分数）
+                if (gameScore >= 50) {
+                    endGameAndStartChaos();
+                }
+            }
+            
+            // 在49分时结束游戏
+            function endGameAt49() {
+                gameRunning = false;
+                const gameOverMessage = document.getElementById('game-over-message');
+                gameOverMessage.innerHTML = '哎，就差一点了，别灰心🤣，再多机会也没用，最后一次机会吧！！！<br><button id="last-chance-btn" class="mt-4 px-4 py-2 bg-red-500 text-white rounded">最后一次机会</button>';
+                gameOverMessage.style.display = 'block';
+                
+                // 添加最后一次机会按钮事件
+                document.getElementById('last-chance-btn').addEventListener('click', function() {
+                    gameOverMessage.style.display = 'none';
+                    finalChance = true;
+                    gameScore = 0;
+                    updateScore();
+                    gameRunning = true;
+                    // 移除所有障碍物
+                    obstacles.forEach(obs => obs.remove());
+                    obstacles = [];
+                    gameLoop();
+                });
+            }
+            
+            // 结束游戏并开始混乱模式
+            function endGameAndStartChaos() {
+                gameRunning = false;
+                const gameOverMessage = document.getElementById('game-over-message');
+                gameOverMessage.innerHTML = '哟，有点实力，但不多，让网站翻腾起来吧！！！<br><button id="chaos-btn" class="mt-4 px-4 py-2 bg-purple-500 text-white rounded">开始混乱</button>';
+                gameOverMessage.style.display = 'block';
+                
+                // 添加开始混乱按钮事件
+                document.getElementById('chaos-btn').addEventListener('click', function() {
+                    gameOverMessage.style.display = 'none';
+                    document.getElementById('game-container').style.display = 'none';
+                    startChaosMode();
+                });
+            }
+            
+            // 开始混乱模式
+            function startChaosMode() {
+                document.getElementById('normal-homepage').style.display = 'block';
+                document.getElementById('follow-button').style.display = 'block';
+                chaosMode = true;
+                
+                // 让所有元素（除了赞助按钮）疯狂转动
+                const allElements = document.querySelectorAll('#normal-homepage *:not(#follow-button)');
+                allElements.forEach(element => {
+                    element.classList.add('chaos-mode');
+                });
+                
+                // 让赞助按钮跟随鼠标移动
+                document.addEventListener('mousemove', function(e) {
+                    if (chaosMode) {
+                        const followButton = document.getElementById('follow-button');
+                        followButton.style.left = e.clientX - 50 + 'px';
+                        followButton.style.top = e.clientY - 20 + 'px';
+                    }
+                });
+                
+                // 为赞助按钮添加点击事件，跳转到爱发电赞助页面
+                document.getElementById('follow-button').addEventListener('click', function() {
+                    window.location.href = 'https://afdian.com/a/rdfzsandbox_support';
+                });
+                
+                // 60秒后恢复正常主页
+                setTimeout(function() {
+                    endChaosMode();
+                }, 60000);
+            }
+            
+            // 结束混乱模式
+            function endChaosMode() {
+                chaosMode = false;
+                document.getElementById('follow-button').style.display = 'none';
+                
+                // 移除所有元素的混乱模式
+                const allElements = document.querySelectorAll('#normal-homepage *');
+                allElements.forEach(element => {
+                    element.classList.remove('chaos-mode');
+                });
+                
+                // 显示愚人节结束消息
+                const message = document.createElement('div');
+                message.style.position = 'fixed';
+                message.style.top = '50%';
+                message.style.left = '50%';
+                message.style.transform = 'translate(-50%, -50%)';
+                message.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+                message.style.color = 'white';
+                message.style.padding = '20px';
+                message.style.borderRadius = '10px';
+                message.style.zIndex = '10000';
+                message.style.textAlign = 'center';
+                message.innerHTML = '<h2>愚人节快乐！</h2><p>希望你喜欢这个小小的恶作剧！</p>';
+                document.body.appendChild(message);
+                
+                // 5秒后移除消息
+                setTimeout(function() {
+                    document.body.removeChild(message);
+                }, 5000);
+            }
+            
+            // 游戏主循环
+            function gameLoop() {
+                if (!gameRunning) return;
+                
+                // 随机生成障碍物（降低生成频率）
+                if (Math.random() < 0.01) { // 从0.02降低到0.01
+                    createObstacle();
+                }
+                
+                // 移动障碍物
+                moveObstacles();
+                
+                // 增加分数（提高分数增长速度）
+                if (Math.random() < 0.2) { // 从0.1提高到0.2
+                    gameScore++;
+                    updateScore();
+                }
+                
+                // 继续游戏循环
+                requestAnimationFrame(gameLoop);
+            }
+            
+            // 创建障碍物
+            function createObstacle() {
+                // 如果是最后一次机会且分数小于50，不创建障碍物
+                if (finalChance && gameScore < 50) return;
+                
+                const obstacle = document.createElement('div');
+                obstacle.classList.add('obstacle');
+                // 增加障碍物之间的最小距离
+                if (obstacles.length > 0) {
+                    const lastObstacle = obstacles[obstacles.length - 1];
+                    const lastObstacleRight = parseInt(lastObstacle.style.right);
+                    if (lastObstacleRight < 300) { // 增加障碍物之间的最小距离
+                        return;
+                    }
+                }
+                obstacle.style.right = '0px';
+                document.getElementById('game-container').appendChild(obstacle);
+                obstacles.push(obstacle);
+            }
+            
+            // 移动障碍物
+            function moveObstacles() {
+                for (let i = obstacles.length - 1; i >= 0; i--) {
+                    const obstacle = obstacles[i];
+                    const currentRight = parseInt(obstacle.style.right);
+                    obstacle.style.right = (currentRight + gameSpeed) + 'px';
+                    
+                    // 检测碰撞
+                    if (currentRight > window.innerWidth - 100 && currentRight < window.innerWidth - 50 && !isJumping) {
+                        // 碰撞发生
+                        if (finalChance) {
+                            // 如果是最后一次机会，重置游戏但保留机会状态
+                            gameScore = 0;
+                            updateScore();
+                            // 移除所有障碍物
+                            obstacles.forEach(obs => obs.remove());
+                            obstacles = [];
+                        } else {
+                            // 游戏结束
+                            gameRunning = false;
+                            const gameOverMessage = document.getElementById('game-over-message');
+                            gameOverMessage.innerHTML = '游戏结束！<br>你的分数: ' + gameScore + '<br><button id="restart-btn" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded">重新开始</button>';
+                            gameOverMessage.style.display = 'block';
+                            
+                            // 添加重新开始按钮事件
+                            document.getElementById('restart-btn').addEventListener('click', function() {
+                                gameOverMessage.style.display = 'none';
+                                // 移除所有障碍物
+                                obstacles.forEach(obs => obs.remove());
+                                obstacles = [];
+                                gameScore = 0;
+                                updateScore();
+                                gameRunning = true;
+                                gameLoop();
+                            });
+                        }
+                    }
+                    
+                    // 移除屏幕外的障碍物
+                    if (currentRight > window.innerWidth) {
+                        obstacle.remove();
+                        obstacles.splice(i, 1);
+                    }
+                }
+            }
+            
+            // 跳跃功能
+            document.addEventListener('keydown', function(e) {
+                if (e.code === 'Space' && !isJumping && gameRunning) {
+                    isJumping = true;
+                    const dino = document.getElementById('dino');
+                    dino.style.bottom = '150px';
+                    
+                    // 减少跳跃时间，使跳跃更容易控制
+                    setTimeout(function() {
+                        dino.style.bottom = '50px';
+                        isJumping = false;
+                    }, 400); // 从500减少到400
+                }
+            });
+            
+            // 触摸跳跃功能（移动设备）
+            document.addEventListener('touchstart', function(e) {
+                if (!isJumping && gameRunning) {
+                    isJumping = true;
+                    const dino = document.getElementById('dino');
+                    dino.style.bottom = '150px';
+                    
+                    // 减少跳跃时间，使跳跃更容易控制
+                    setTimeout(function() {
+                        dino.style.bottom = '50px';
+                        isJumping = false;
+                    }, 400); // 从500减少到400
+                }
+            });
+        });
+    </script>
+</body>
+</html>
